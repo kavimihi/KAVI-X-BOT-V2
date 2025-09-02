@@ -5,7 +5,6 @@
     "main": "index.js",
     "type": "commonjs",
     "scripts": {
-        "postinstall": "npx playwright install",
         "start": "pm2 start index.js --deep-monitoring --attach --name KAVI-X-V2",
         "stop": "pm2 stop KAVI-X-V2",
         "restart": "pm2 restart KAVI-X-V2",
