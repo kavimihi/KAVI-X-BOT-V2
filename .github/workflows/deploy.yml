@@ -15,22 +15,60 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
     strategy:
       matrix:
         node-version: [20.x]
-
+    
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-
-    - name: Install dependencies
-      run: npm install --legacy-peer-deps
-
-    - name: Start application
-      run: npm start
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: Clean dependencies and install specific versions
+        run: |
+          rm -rf node_modules package-lock.json
+          npm install cheerio@1.0.0-rc.12 css-select@5.1.0 --legacy-peer-deps
+      
+      - name: Install remaining dependencies
+        run: npm install --legacy-peer-deps
+      
+      - name: Install Playwright browsers
+        run: npx playwright install firefox
+      
+      - name: Install Playwright system dependencies
+        run: npx playwright install-deps firefox
+      
+      - name: Install additional system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 \
+            libnspr4 \
+            libatk-bridge2.0-0 \
+            libdrm2 \
+            libxkbcommon0 \
+            libxcomposite1 \
+            libxdamage1 \
+            libxrandr2 \
+            libgbm1 \
+            libxss1 \
+            libasound2 \
+            libgtk-3-0 \
+            libgdk-pixbuf2.0-0
+      
+      - name: Set display for headless mode
+        run: |
+          export DISPLAY=:99
+          Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+      
+      - name: Start application
+        run: npm start
+        env:
+          NODE_ENV: production
+          PLAYWRIGHT_BROWSERS_PATH: 0
