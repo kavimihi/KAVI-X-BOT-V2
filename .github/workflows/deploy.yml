@@ -1,4 +1,4 @@
-name: Node.js + Python CI
+name: Node.js CI
 
 on:
   push:
@@ -7,7 +7,6 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -20,38 +19,28 @@ jobs:
     strategy:
       matrix:
         node-version: [20.x]
-        python-version: [3.11]
 
     steps:
-      # Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Setup Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
 
-      # Setup Python
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      # Install Node.js dependencies
-      - name: Install Node.js dependencies
+      - name: Clean dependencies and install specific versions
         run: |
           rm -rf node_modules package-lock.json
           npm install cheerio@1.0.0-rc.12 css-select@5.1.0 --legacy-peer-deps
-          npm install --legacy-peer-deps
 
-      # Install Python dependencies
+      - name: Install remaining dependencies
+        run: npm install --legacy-peer-deps
+
       - name: Install Python dependencies
         run: |
           pip install playwright
           playwright install --with-deps firefox
 
-      # Run Node.js project (calls Python module)
-      - name: Run Node.js project
+      - name: Start application
         run: npm start
