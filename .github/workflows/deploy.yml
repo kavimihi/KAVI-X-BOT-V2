@@ -1,4 +1,4 @@
-name: Node.js CI
+name: Node.js + Python CI
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -15,33 +16,42 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [20.x]
-    
+        python-version: [3.11]
+
     steps:
+      # Checkout repo
       - name: Checkout repository
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@v3
+
+      # Setup Node.js
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      
-      - name: Clean dependencies and install specific versions
+
+      # Setup Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Install Node.js dependencies
+      - name: Install Node.js dependencies
         run: |
           rm -rf node_modules package-lock.json
           npm install cheerio@1.0.0-rc.12 css-select@5.1.0 --legacy-peer-deps
-      
-      - name: Install remaining dependencies
-        run: npm install --legacy-peer-deps
-      
-      - name: Install Playwright browsers
-        run: npx playwright install firefox
-      
-      - name: Install Playwright system dependencies
-        run: npx playwright install-deps firefox
-      
-      - name: Start application
+          npm install --legacy-peer-deps
+
+      # Install Python dependencies
+      - name: Install Python dependencies
+        run: |
+          pip install playwright
+          playwright install --with-deps firefox
+
+      # Run Node.js project (calls Python module)
+      - name: Run Node.js project
         run: npm start
