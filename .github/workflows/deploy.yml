@@ -43,31 +43,5 @@ jobs:
       - name: Install Playwright system dependencies
         run: npx playwright install-deps firefox
       
-      - name: Install additional system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libnss3 \
-            libnspr4 \
-            libatk-bridge2.0-0 \
-            libdrm2 \
-            libxkbcommon0 \
-            libxcomposite1 \
-            libxdamage1 \
-            libxrandr2 \
-            libgbm1 \
-            libxss1 \
-            libasound2 \
-            libgtk-3-0 \
-            libgdk-pixbuf2.0-0
-      
-      - name: Set display for headless mode
-        run: |
-          export DISPLAY=:99
-          Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-      
       - name: Start application
         run: npm start
-        env:
-          NODE_ENV: production
-          PLAYWRIGHT_BROWSERS_PATH: 0
