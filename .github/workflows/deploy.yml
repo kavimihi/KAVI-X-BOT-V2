@@ -37,10 +37,5 @@ jobs:
       - name: Install remaining dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Install Python dependencies
-        run: |
-          pip install playwright
-          playwright install --with-deps firefox
-
       - name: Start application
         run: npm start
